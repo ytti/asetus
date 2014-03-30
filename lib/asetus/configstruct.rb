@@ -48,10 +48,11 @@ class Asetus
       cfg = {}
       hash.each do |key, value|
         if value.class == Hash
-          value = _asetus_from_hash value
+          value = ConfigStruct.new value
         end
         cfg[key] = value
       end
+      cfg
     end
 
   end
