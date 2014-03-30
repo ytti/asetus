@@ -73,7 +73,7 @@ class Asetus
   def merge *configs
     hash = {}
     configs.each do |config|
-      hash = hash.merge config._asetus_to_hash
+      hash = hash._asetus_deep_merge config._asetus_to_hash
     end
     ConfigStruct.new hash
   end
@@ -93,5 +93,14 @@ class Asetus
     File.basename path, File.extname(path)
   rescue
     raise NoName, "can't figure out name, specify explicitly"
+  end
+end
+
+class Hash
+  def _asetus_deep_merge newhash
+    merger = proc do |key, oldval, newval|
+      Hash === oldval && Hash === newval ? oldval.merge(newval, &merger) : newval
+    end
+    merge newhash, &merger
   end
 end
