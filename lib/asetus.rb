@@ -5,6 +5,7 @@ require 'fileutils'
 
 class AsetusError < StandardError; end
 class NoName < AsetusError; end
+class UnknownOption < AsetusError; end
 
 class Asetus
   CONFIG_FILE = 'config'
@@ -52,13 +53,15 @@ class Asetus
     @cfg      = ConfigStruct.new
     @load     = true
     @load     = opts.delete(:load) if opts.has_key?(:load)
+    @key_to_s = opts.delete(:key_to_s)
+    raise UnknownOption, "option '#{opts}' not recognized" unless opts.empty?
     load :all if @load
   end
 
   def load_cfg dir
     file = File.join dir, CONFIG_FILE
     file = File.read file
-    ConfigStruct.new from(@adapter, file)
+    ConfigStruct.new(from(@adapter, file), :key_to_s=>@key_to_s)
   rescue Errno::ENOENT
     ConfigStruct.new
   end

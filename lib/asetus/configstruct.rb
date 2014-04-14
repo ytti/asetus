@@ -7,6 +7,7 @@ class Asetus
         if value.class == ConfigStruct
           value = value._asetus_to_hash
         end
+        key = key.to_s if @key_to_s
         hash[key] = value
       end
       hash
@@ -16,9 +17,22 @@ class Asetus
       @cfg.empty?
     end
 
+    def each &block
+      @cfg.each(&block)
+    end
+
+    def key? key
+      @cfg.has_key? key
+    end
+
+    def [] key
+      @cfg[key]
+    end
+
     private
 
-    def initialize hash=nil
+    def initialize hash=nil, opts={}
+      @key_to_s = opts.delete :key_to_s
       @cfg = hash ? _asetus_from_hash(hash) : {}
     end
 
@@ -48,7 +62,7 @@ class Asetus
       cfg = {}
       hash.each do |key, value|
         if value.class == Hash
-          value = ConfigStruct.new value
+          value = ConfigStruct.new value, :key_to_s=>@key_to_s
         end
         cfg[key] = value
       end
