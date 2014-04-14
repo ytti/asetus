@@ -39,10 +39,12 @@ class Asetus
     def method_missing name, *args, &block
       name = name.to_s
       arg = args.first
-      if name[-1..-1] == '='
+      if    name[-1..-1] == '?'    # asetus.cfg.foo.bar?
+        @cfg.has_key? name[0..-2]
+      elsif name[-1..-1] == '='    # asetus.cfg.foo.bar = 'quux'
         _asetus_set name[0..-2], arg
       else
-        _asetus_get name, arg
+        _asetus_get name, arg      # asetus.cfg.foo.bar
       end
     end
 
