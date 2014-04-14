@@ -21,7 +21,7 @@ class Asetus
       @cfg.each(&block)
     end
 
-    def key? key
+    def has_key? key
       @cfg.has_key? key
     end
 
@@ -40,7 +40,11 @@ class Asetus
       name = name.to_s
       arg = args.first
       if    name[-1..-1] == '?'    # asetus.cfg.foo.bar?
-        @cfg.has_key? name[0..-2]
+        if @cfg.has_key? name[0..-2]
+          @cfg[name[0..-2]] ? true : false
+        else
+          nil
+        end
       elsif name[-1..-1] == '='    # asetus.cfg.foo.bar = 'quux'
         _asetus_set name[0..-2], arg
       else
