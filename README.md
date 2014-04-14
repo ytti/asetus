@@ -44,6 +44,14 @@ asetus.system  # system only
 asetus.user    # user only
 ```
 
+## Reserved methods
+
+* each           - iterate all config keys in current level
+* has_key?(arg)  - check if current level has key arg
+* [arg]          - fetch arg (useful for non-literal retrieval, instead of using #send)
+* key?           - all keys have question mark version reserved, checks if key exists+true (true), exists+false (false), not-exists (nil)
++ all object class methods
+
 ## TODO
 
   * should I add feature to raise on unconfigured/unset?
