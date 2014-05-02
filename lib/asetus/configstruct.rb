@@ -38,7 +38,7 @@ class Asetus
       arg = args.first
       if    name[-1..-1] == '?'               # asetus.cfg.foo.bar?
         if @cfg.has_key? name[0..-2]
-          @cfg[name[0..-2]] ? true : false
+          @cfg[name[0..-2]]
         else
           nil
         end
