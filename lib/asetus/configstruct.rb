@@ -25,10 +25,6 @@ class Asetus
       @cfg.has_key? key
     end
 
-    def [] key
-      @cfg[key]
-    end
-
     private
 
     def initialize hash=nil, opts={}
@@ -37,18 +33,19 @@ class Asetus
     end
 
     def method_missing name, *args, &block
+      name = args.shift if name == '[]'  # asetus.cfg['foo']
       name = name.to_s
       arg = args.first
-      if    name[-1..-1] == '?'    # asetus.cfg.foo.bar?
+      if    name[-1..-1] == '?'          # asetus.cfg.foo.bar?
         if @cfg.has_key? name[0..-2]
           @cfg[name[0..-2]] ? true : false
         else
           nil
         end
-      elsif name[-1..-1] == '='    # asetus.cfg.foo.bar = 'quux'
+      elsif name[-1..-1] == '='          # asetus.cfg.foo.bar = 'quux'
         _asetus_set name[0..-2], arg
       else
-        _asetus_get name, arg      # asetus.cfg.foo.bar
+        _asetus_get name, arg            # asetus.cfg.foo.bar
       end
     end
 
