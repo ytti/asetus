@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = 'asetus'
-  s.version           = '0.0.7'
+  s.version           = '0.1.0'
   s.platform          = Gem::Platform::RUBY
   s.authors           = [ 'Saku Ytti' ]
   s.email             = %w( saku@ytti.fi )
