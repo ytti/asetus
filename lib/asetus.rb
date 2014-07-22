@@ -101,7 +101,7 @@ class Asetus
     @adapter  = (opts.delete(:adapter) or 'yaml')
     @usrdir   = (opts.delete(:usrdir)  or File.join(Dir.home, '.config', @name))
     @sysdir   = (opts.delete(:sysdir)  or File.join('/etc', @name))
-    @cfgfile  = (opts.delete(:cfgfile) or CONFIG_FILE
+    @cfgfile  = (opts.delete(:cfgfile) or CONFIG_FILE)
     @default  = ConfigStruct.new opts.delete(:default)
     @system   = ConfigStruct.new
     @user     = ConfigStruct.new
