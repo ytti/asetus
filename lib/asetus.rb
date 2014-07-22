@@ -23,7 +23,7 @@ class UnknownOption < AsetusError; end
 #   ssh_hosts = CFG.ssh.hosts
 class Asetus
   CONFIG_FILE = 'config'
-  attr_reader :cfg, :default
+  attr_reader :cfg, :default, :file
   attr_accessor :system, :user
 
   class << self
@@ -92,6 +92,7 @@ class Asetus
   # @option opts [String]  :adapter  adapter to use 'yaml' or 'json' for now
   # @option opts [String]  :usrdir   directory for storing user config ~/.config/name/ by default
   # @option opts [String]  :sysdir   directory for storing system config /etc/name/ by default
+  # @option opts [String]  :cfgfile  configuration filename by default CONFIG_FILE
   # @option opts [Hash]    :default  default settings to use
   # @option opts [boolean] :load     automatically load+merge system+user config with defaults in #cfg
   # @option opts [boolean] :key_to_s convert keys to string by calling #to_s for keys
@@ -100,6 +101,7 @@ class Asetus
     @adapter  = (opts.delete(:adapter) or 'yaml')
     @usrdir   = (opts.delete(:usrdir)  or File.join(Dir.home, '.config', @name))
     @sysdir   = (opts.delete(:sysdir)  or File.join('/etc', @name))
+    @cfgfile  = (opts.delete(:cfgfile) or CONFIG_FILE
     @default  = ConfigStruct.new opts.delete(:default)
     @system   = ConfigStruct.new
     @user     = ConfigStruct.new
@@ -112,8 +114,8 @@ class Asetus
   end
 
   def load_cfg dir
-    file = File.join dir, CONFIG_FILE
-    file = File.read file
+    @file = File.join dir, @cfgfile
+    file = File.read @file
     ConfigStruct.new(from(@adapter, file), :key_to_s=>@key_to_s)
   rescue Errno::ENOENT
     ConfigStruct.new
@@ -121,7 +123,7 @@ class Asetus
 
   def save_cfg dir, config
     config = to(@adapter, config)
-    file   = File.join dir, CONFIG_FILE
+    file   = File.join dir, @cfgfile
     FileUtils.mkdir_p dir
     File.write file, config
   end
