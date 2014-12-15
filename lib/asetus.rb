@@ -1,6 +1,7 @@
 require_relative 'asetus/configstruct'
 require_relative 'asetus/adapter/yaml'
 require_relative 'asetus/adapter/json'
+require_relative 'asetus/adapter/toml'
 require 'fileutils'
 
 class AsetusError < StandardError; end
@@ -89,7 +90,7 @@ class Asetus
 
   # @param [Hash] opts options for Asetus.new
   # @option opts [String]  :name     name to use for asetus (/etc/name/, ~/.config/name/) - autodetected if not defined
-  # @option opts [String]  :adapter  adapter to use 'yaml' or 'json' for now
+  # @option opts [String]  :adapter  adapter to use 'yaml', 'json' or 'toml' for now
   # @option opts [String]  :usrdir   directory for storing user config ~/.config/name/ by default
   # @option opts [String]  :sysdir   directory for storing system config /etc/name/ by default
   # @option opts [String]  :cfgfile  configuration filename by default CONFIG_FILE

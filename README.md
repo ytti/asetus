@@ -1,5 +1,5 @@
 # Asetus
-Configuration library for ruby with YAML/JSON backends with unified object
+Configuration library for ruby with YAML/JSON/TOML backends with unified object
 access
 
 ## Install
