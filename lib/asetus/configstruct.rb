@@ -21,6 +21,10 @@ class Asetus
       @cfg.each(&block)
     end
 
+    def keys
+      @cfg.keys
+    end
+
     def has_key? key
       @cfg.has_key? key
     end
