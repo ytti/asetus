@@ -59,7 +59,7 @@ asetus.user    # user only
 
 ## License and Copyright
 
-Copyright 2014-2015 Saku Ytti <saku@ytti.fi>
+Copyright 2014-2016 Saku Ytti <saku@ytti.fi>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
