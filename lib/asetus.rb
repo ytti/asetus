@@ -34,10 +34,10 @@ class Asetus
   end
 
   # When this is called, by default :system and :user are loaded from
-  # filesystem and merged with defefault, so that user overrides system which
+  # filesystem and merged with default, so that user overrides system which
   # overrides default
   #
-  # @param [Symbol] level which configuration level to load, by defaukt :all
+  # @param [Symbol] level which configuration level to load, by default :all
   # @return [void]
   def load level=:all
     if level == :default or level == :all
@@ -66,8 +66,8 @@ class Asetus
   # @example create user config from default config and raise error, if no config was found
   #   raise StandardError, 'edit ~/.config/name/config' if asetus.create
   # @param [Hash] opts options for Asetus
-  # @option opts [Symbol]  :source       source to use for settings to save, by defaylt :default
-  # @option opts [Symbol]  :destination  destinatino to use for settings to save, by default :user
+  # @option opts [Symbol]  :source       source to use for settings to save, by default :default
+  # @option opts [Symbol]  :destination  destination to use for settings to save, by default :user
   # @option opts [boolean] :load         load config once saved, by default false
   # @return [boolean] true if config didn't exist and was created, false if config already exists
   def create opts={}
@@ -93,7 +93,7 @@ class Asetus
   # @option opts [String]  :adapter  adapter to use 'yaml', 'json' or 'toml' for now
   # @option opts [String]  :usrdir   directory for storing user config ~/.config/name/ by default
   # @option opts [String]  :sysdir   directory for storing system config /etc/name/ by default
-  # @option opts [String]  :cfgfile  configuration filename by default CONFIG_FILE
+  # @option opts [String]  :cfgfile  configuration filename, by default CONFIG_FILE
   # @option opts [Hash]    :default  default settings to use
   # @option opts [boolean] :load     automatically load+merge system+user config with defaults in #cfg
   # @option opts [boolean] :key_to_s convert keys to string by calling #to_s for keys

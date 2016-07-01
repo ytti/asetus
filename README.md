@@ -31,7 +31,7 @@ asetus = Asetus.new name:    'mykewlapp',
                     sysdir:  '/System/config/',
                     load:    false
 asetus.default.poop2 = [1, 2, 3, 4]
-asetus.default.starship.poopoers = 42
+asetus.default.starship.poopers = 42
 asetus.load :user
 if asetus.user.empty?
   asetus.user = asetus.default
