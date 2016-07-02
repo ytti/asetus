@@ -7,6 +7,7 @@ require 'fileutils'
 class AsetusError < StandardError; end
 class NoName < AsetusError; end
 class UnknownOption < AsetusError; end
+class Unset < AsetusError; end
 
 # @example common use case
 #   CFGS = Asetus.new :name=>'my_sweet_program' :load=>false   # do not load config from filesystem
@@ -86,7 +87,6 @@ class Asetus
   # @option opts [String]  :cfgfile  configuration filename, by default CONFIG_FILE
   # @option opts [Hash]    :default  default settings to use
   # @option opts [boolean] :load     automatically load+merge system+user config with defaults in #cfg
-  # @option opts [boolean] :key_to_s convert keys to string by calling #to_s for keys
   def initialize opts={}
     @name     = (opts.delete(:name)    or metaname)
     @adapter  = (opts.delete(:adapter) or 'yaml')
@@ -103,13 +103,12 @@ class Asetus
     @cfg      = ConfigStruct.new
     @load     = true
     @load     = opts.delete(:load) if opts.has_key?(:load)
-    @key_to_s = opts.delete(:key_to_s)
     raise UnknownOption, "option '#{opts}' not recognized" unless opts.empty?
     load :all if @load
   end
 
   def load_file path
-    ConfigStruct.new(from(@adapter, File.read(path)), :key_to_s=>@key_to_s)
+    ConfigStruct.new(from(@adapter, File.read(path)))
   rescue Errno::ENOENT
     ConfigStruct.new
   end
