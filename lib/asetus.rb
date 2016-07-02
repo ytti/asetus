@@ -24,7 +24,7 @@ class UnknownOption < AsetusError; end
 #   ssh_hosts = CFG.ssh.hosts
 class Asetus
   CONFIG_FILE = 'config'
-  attr_reader :cfg, :default, :file
+  attr_reader :cfg, :default, :paths
   attr_accessor :system, :user
 
   class << self
@@ -40,27 +40,18 @@ class Asetus
   # @param [Symbol] level which configuration level to load, by default :all
   # @return [void]
   def load level=:all
-    if level == :default or level == :all
-      @cfg = merge @cfg, @default
-    end
-    if level == :system or level == :all
-      @system = load_cfg @sysdir
-      @cfg = merge @cfg, @system
-    end
-    if level == :user or level == :all
-      @user = load_cfg @usrdir
-      @cfg = merge @cfg, @user
+    [:default, :system, :user].each do |l|
+      if level == l or level == :all
+        @configs[l] = load_file @paths[l] if @paths.has_key? l
+        @cfg = merge @cfg, @configs[l]
+      end
     end
   end
 
   # @param [Symbol] level which configuration level to save, by default :user
   # @return [void]
   def save level=:user
-    if level == :user
-      save_cfg @usrdir, @user
-    elsif level == :system
-      save_cfg @sysdir, @system
-    end
+    save_file @paths[level], @configs[level]
   end
 
   # @example create user config from default config and raise error, if no config was found
@@ -76,10 +67,9 @@ class Asetus
     dst   = opts.delete :destination
     dst ||= :user
     no_config = false
-    no_config = true if @system.empty? and @user.empty?
+    no_config = true if @configs[:system].empty? and @configs[:user].empty?
     if no_config
-      src = instance_variable_get '@' + src.to_s
-      instance_variable_set('@'+dst.to_s, src.dup)
+      @configs[dst] = @configs[src].dup
       save dst
       load if opts.delete :load
     end
@@ -91,8 +81,8 @@ class Asetus
   # @param [Hash] opts options for Asetus.new
   # @option opts [String]  :name     name to use for asetus (/etc/name/, ~/.config/name/) - autodetected if not defined
   # @option opts [String]  :adapter  adapter to use 'yaml', 'json' or 'toml' for now
-  # @option opts [String]  :usrdir   directory for storing user config ~/.config/name/ by default
-  # @option opts [String]  :sysdir   directory for storing system config /etc/name/ by default
+  # @option opts [String]  :usrpath  path for storing user config, ~/.config/name/cfgfile by default
+  # @option opts [String]  :syspath  path for storing system config, /etc/name/cfgfile by default
   # @option opts [String]  :cfgfile  configuration filename, by default CONFIG_FILE
   # @option opts [Hash]    :default  default settings to use
   # @option opts [boolean] :load     automatically load+merge system+user config with defaults in #cfg
@@ -100,12 +90,16 @@ class Asetus
   def initialize opts={}
     @name     = (opts.delete(:name)    or metaname)
     @adapter  = (opts.delete(:adapter) or 'yaml')
-    @usrdir   = (opts.delete(:usrdir)  or File.join(Dir.home, '.config', @name))
-    @sysdir   = (opts.delete(:sysdir)  or File.join('/etc', @name))
     @cfgfile  = (opts.delete(:cfgfile) or CONFIG_FILE)
-    @default  = ConfigStruct.new opts.delete(:default)
-    @system   = ConfigStruct.new
-    @user     = ConfigStruct.new
+    @paths    = {
+      system:   (opts.delete(:syspath) or File.join('/etc', @name, @cfgfile)),
+      user:     (opts.delete(:usrpath) or File.join(Dir.home, '.config', @name, @cfgfile))
+    }
+    @configs  = {
+      default:  ConfigStruct.new(opts.delete(:default)),
+      system:   ConfigStruct.new,
+      user:     ConfigStruct.new,
+    }
     @cfg      = ConfigStruct.new
     @load     = true
     @load     = opts.delete(:load) if opts.has_key?(:load)
@@ -114,19 +108,17 @@ class Asetus
     load :all if @load
   end
 
-  def load_cfg dir
-    @file = File.join dir, @cfgfile
-    file = File.read @file
-    ConfigStruct.new(from(@adapter, file), :key_to_s=>@key_to_s)
+  def load_file path
+    ConfigStruct.new(from(@adapter, File.read(path)), :key_to_s=>@key_to_s)
   rescue Errno::ENOENT
     ConfigStruct.new
   end
 
-  def save_cfg dir, config
+  def save_file path, config
     config = to(@adapter, config)
-    file   = File.join dir, @cfgfile
+    dir = File.expand_path("..", path)
     FileUtils.mkdir_p dir
-    File.write file, config
+    File.write path, config
   end
 
   def merge *configs
