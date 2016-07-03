@@ -38,6 +38,17 @@ class Asetus
       _asetus_set key, arg                    # asetus.cfg['foo']['bar'] = 'quux'
     end
 
+    def inspect
+      contents = keys.map do |k|
+        v = self[k]
+        v = "\"#{v}\"" if v.is_a? String
+        " #{k}=#{v}"
+      end.join
+      "#<#{self.class}#{contents}>"
+    end
+
+    alias_method :to_s, :inspect
+    
     private
 
     def initialize hash=nil, opts={}
