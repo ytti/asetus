@@ -18,7 +18,7 @@ class Asetus
 
         def from yaml
           require 'yaml'
-          ::YAML.load yaml
+          ::YAML.unsafe_load yaml
         end
       end
     end
