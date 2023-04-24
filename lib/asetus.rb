@@ -39,23 +39,21 @@ class Asetus
   #
   # @param [Symbol] level which configuration level to load, by default :all
   # @return [void]
-  def load level=:all
-    if level == :default or level == :all
-      @cfg = merge @cfg, @default
-    end
-    if level == :system or level == :all
+  def load(level = :all)
+    @cfg = merge @cfg, @default if %i[default all].include?(level)
+    if %i[system all].include?(level)
       @system = load_cfg @sysdir
       @cfg = merge @cfg, @system
     end
-    if level == :user or level == :all
-      @user = load_cfg @usrdir
-      @cfg = merge @cfg, @user
-    end
+    return unless %i[user all].include?(level)
+
+    @user = load_cfg @usrdir
+    @cfg = merge @cfg, @user
   end
 
   # @param [Symbol] level which configuration level to save, by default :user
   # @return [void]
-  def save level=:user
+  def save(level = :user)
     if level == :user
       save_cfg @usrdir, @user
     elsif level == :system
@@ -70,16 +68,16 @@ class Asetus
   # @option opts [Symbol]  :destination  destination to use for settings to save, by default :user
   # @option opts [boolean] :load         load config once saved, by default false
   # @return [boolean] true if config didn't exist and was created, false if config already exists
-  def create opts={}
+  def create(opts = {})
     src   = opts.delete :source
     src ||= :default
     dst   = opts.delete :destination
     dst ||= :user
     no_config = false
-    no_config = true if @system.empty? and @user.empty?
+    no_config = true if @system.empty? && @user.empty?
     if no_config
       src = instance_variable_get '@' + src.to_s
-      instance_variable_set('@'+dst.to_s, src.dup)
+      instance_variable_set('@' + dst.to_s, src.dup)
       save dst
       load if opts.delete :load
     end
@@ -97,7 +95,7 @@ class Asetus
   # @option opts [Hash]    :default  default settings to use
   # @option opts [boolean] :load     automatically load+merge system+user config with defaults in #cfg
   # @option opts [boolean] :key_to_s convert keys to string by calling #to_s for keys
-  def initialize opts={}
+  def initialize(opts = {})
     @name     = (opts.delete(:name)    or metaname)
     @adapter  = (opts.delete(:adapter) or 'yaml')
     @usrdir   = (opts.delete(:usrdir)  or File.join(Dir.home, '.config', @name))
@@ -111,18 +109,19 @@ class Asetus
     @load     = opts.delete(:load) if opts.has_key?(:load)
     @key_to_s = opts.delete(:key_to_s)
     raise UnknownOption, "option '#{opts}' not recognized" unless opts.empty?
+
     load :all if @load
   end
 
-  def load_cfg dir
+  def load_cfg(dir)
     @file = File.join dir, @cfgfile
     file = File.read @file
-    ConfigStruct.new(from(@adapter, file), :key_to_s=>@key_to_s)
+    ConfigStruct.new(from(@adapter, file), key_to_s: @key_to_s)
   rescue Errno::ENOENT
     ConfigStruct.new
   end
 
-  def save_cfg dir, config
+  def save_cfg(dir, config)
     config = to(@adapter, config)
     file   = File.join dir, @cfgfile
     FileUtils.mkdir_p dir
@@ -137,12 +136,12 @@ class Asetus
     ConfigStruct.new hash
   end
 
-  def from adapter, string
+  def from(adapter, string)
     name = 'from_' + adapter
     send name, string
   end
 
-  def to adapter, config
+  def to(adapter, config)
     name = 'to_' + adapter
     send name, config
   end
@@ -150,15 +149,15 @@ class Asetus
   def metaname
     path = caller_locations[-1].path
     File.basename path, File.extname(path)
-  rescue
+  rescue StandardError
     raise NoName, "can't figure out name, specify explicitly"
   end
 end
 
 class Hash
-  def _asetus_deep_merge newhash
-    merger = proc do |key, oldval, newval|
-      Hash === oldval && Hash === newval ? oldval.merge(newval, &merger) : newval
+  def _asetus_deep_merge(newhash)
+    merger = proc do |_key, oldval, newval|
+      oldval.is_a?(Hash) && newval.is_a?(Hash) ? oldval.merge(newval, &merger) : newval
     end
     merge newhash, &merger
   end

@@ -1,27 +1,25 @@
 class Asetus
-
-  def to_json config
+  def to_json(config)
     Adapter::JSON.to config._asetus_to_hash
   end
 
-  def from_json json
+  def from_json(json)
     Adapter::JSON.from json
   end
 
   class Adapter
     class JSON
       class << self
-        def to hash
+        def to(hash)
           require 'json'
           ::JSON.pretty_generate hash
         end
 
-        def from json
+        def from(json)
           require 'json'
           ::JSON.load json
         end
       end
     end
   end
-
 end
