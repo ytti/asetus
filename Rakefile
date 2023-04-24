@@ -1,7 +1,7 @@
 begin
   require 'rake/testtask'
   require 'bundler'
-  #Bundler.setup
+  # Bundler.setup
 rescue LoadError
   warn 'bunler missing'
   exit 42
@@ -32,8 +32,8 @@ task :build do
 end
 
 desc 'Install gem'
-task :install => :build do
-  system "sudo -E sh -c \'umask 022; gem install gems/#{file}\'"
+task install: :build do
+  system "sudo -E sh -c 'umask 022; gem install gems/#{file}'"
 end
 
 desc 'Remove gems'
