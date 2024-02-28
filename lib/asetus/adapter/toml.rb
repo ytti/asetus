@@ -16,8 +16,12 @@ class Asetus
         end
 
         def from(toml)
+          require 'erb'
           require 'toml'
-          ::TOML.load toml
+
+          template = ERB.new toml
+
+          ::TOML.load template.result
         end
       end
     end
