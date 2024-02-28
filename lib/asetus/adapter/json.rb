@@ -16,8 +16,12 @@ class Asetus
         end
 
         def from(json)
+          require 'erb'
           require 'json'
-          ::JSON.load json
+
+          template = ERB.new json
+
+          ::JSON.load template.result
         end
       end
     end

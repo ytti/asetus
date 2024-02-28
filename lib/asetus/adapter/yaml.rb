@@ -16,8 +16,12 @@ class Asetus
         end
 
         def from(yaml)
+          require 'erb'
           require 'yaml'
-          ::YAML.unsafe_load yaml
+
+          template = ERB.new yaml
+
+          ::YAML.unsafe_load template.result
         end
       end
     end
